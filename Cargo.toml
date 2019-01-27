@@ -1,0 +1,24 @@
+[package]
+name = "webgame"
+version = "0.1.0"
+authors = ["David Ayeke"]
+edition = "2018"
+
+[dependencies]
+# raylib = { path = "lib/raylib" }
+# raylib-rs = { git = "https://github.com/deltaphc/raylib-rs.git" }
+raylib = { path = "lib/raylib" }
+log = "0.4"
+specs-derive = "0.4"
+env_logger = "0.6"
+rand = "0.6"
+# shred = { version = "0.7" }
+
+[dependencies.specs]
+version = "0.14"
+default-features = false # do not include the default features, and optionally
+                         # cherry-pick individual features
+# features = ["secure-password", "civet"]
+
+# [features]
+# nightly = ["shred/nightly"]

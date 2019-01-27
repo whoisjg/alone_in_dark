@@ -1,0 +1,12 @@
+[package]
+name = "drturtle"
+version = "0.1.0"
+authors = ["David Ayeke"]
+edition = "2018"
+
+[dependencies]
+raylib = { path = "../.." }
+log = "0.4"
+
+[build-dependencies]
+raylib_build = { path = "../../../raylib_build" }

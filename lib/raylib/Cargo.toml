@@ -1,0 +1,11 @@
+[package]
+name = "raylib"
+version = "0.1.0"
+authors = ["David Ayeke"]
+edition = "2018"
+
+[dependencies]
+log = "0.4"
+rl = { package = "raylib-sys", path = "../raylib-sys" }
+lazy_static = "1.2.0"
+

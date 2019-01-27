@@ -1,0 +1,200 @@
+extern crate pkg_config;
+
+use std::env;
+use std::path::PathBuf;
+use std::process::Command;
+
+fn cmake() {
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let target = env::var("TARGET").unwrap();
+    let raylib_version = "2.0.0";
+
+    let dst = cmake::Config::new("raylib")
+        .define("MACOS_FATLIB", "ON")
+        .define("STATIC", "ON")
+        .define("SHARED", "ON")
+        .define("BUILD_EXAMPLES", "OFF")
+        .define("BUILD_GAMES", "OFF")
+        .define("USE_EXTERNAL_GLFW", "OFF")
+        .define("INCLUDE_EVERYTHING", "ON")
+        // macos pthread
+        .define("CMAKE_THREAD_LIBS_INIT", "-lpthread")
+        .define("CMAKE_HAVE_THREADS_LIBRARY", "1")
+        .define("CMAKE_USE_WIN32_THREADS_INIT", "0")
+        .define("CMAKE_USE_PTHREADS_INIT", "1")
+        .build();
+
+    println!(
+        "cargo:rustc-link-search=native={}",
+        dst.join("lib").display()
+    );
+    println!("cargo:rustc-link-lib=static=raylib");
+
+    // Trim macOS static library
+    if target.contains("darwin") {
+        let arch = if target.contains("x86_64") {
+            "x86_64"
+        } else {
+            "i386"
+        };
+        let _ = Command::new("lipo")
+            .current_dir(out_dir.join("lib"))
+            .args(&["libraylib.a", "-thin", arch, "-output", "libraylib.a"])
+            .status()
+            .expect("Failed to execute `lipo`")
+            .success()
+            || panic!("Failed to trim static library");
+    }
+
+    // Generate cargo metadata for linking to raylib
+    if target.contains("windows") {
+        println!(
+            "cargo:rustc-link-search=native={}",
+            out_dir.join("lib").display()
+        );
+        println!("cargo:rustc-link-lib=static=raylib");
+        println!("cargo:rustc-link-lib=gdi32");
+        println!("cargo:rustc-link-lib=user32");
+    } else {
+        // On other platforms read raylib.pc with pkg-config
+        env::set_var("PKG_CONFIG_PATH", out_dir.join("lib/pkgconfig"));
+        pkg_config::Config::new()
+            .atleast_version(raylib_version)
+            .statik(true)
+            .arg(format!("--define-variable=prefix={}", out_dir.display()))
+            .probe("raylib")
+            .unwrap();
+    }
+
+    let has_glfw = Command::new("nm")
+        .current_dir(out_dir.join("lib"))
+        .args(&["-g", "libraylib.a"])
+        .output()
+        .expect("failed to execute process");
+
+    assert!(
+        String::from_utf8_lossy(&has_glfw.stdout).contains("glfwGetProcAddress"),
+        "libraylib.a doesn't contain GLFW symbols! Aborting..."
+    );
+
+    // bindgen
+    // Generate and write raylib bindings
+    bindgen::Builder::default()
+        .header("wrapper.h")
+        .clang_arg(format!("-I{}", out_dir.join("include").display()))
+        .constified_enum_module("*")
+        .generate()
+        .expect("Failed to generate bindings")
+        .write_to_file(out_dir.join("bindings.rs"))
+        .expect("Failed to write bindings");
+}
+
+fn old3() {
+    let target = env::var("TARGET").unwrap();
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+
+    let mut builder = cc::Build::new();
+    builder
+        .flag("-dynamiclib")
+        .flag("compatibility_version")
+}
+
+fn main() {
+    // Define required raylib variables
+    const RAYLIB_VERSION     = "2.0.0"
+    const RAYLIB_API_VERSION = 2
+}
+
+// fn old() {
+//     let target = env::var("TARGET").unwrap();
+//     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+
+//     let mut builder = cc::Build::new();
+//     // defines
+//     builder
+//         .define("_DEFAULT_SOURCE", None)
+//         .define("GL_SILENCE_DEPRECATION", None);
+
+//     if target.contains("emscripten") {
+//         builder
+//             .define("PLATFORM_WEB", None)
+//             .define("GRAPHICS_API_OPENGL_ES2", None);
+//     } else {
+//         builder
+//             .define("PLATFORM_DESKTOP", None)
+//             .define("GRAPHICS_API_OPENGL_33", None);
+//     }
+
+//     // flags
+//     builder
+//         .flag("-O1")
+//         // .flag("-Wall")
+//         .flag("-std=c99")
+//         .flag("-fno-strict-aliasing")
+//         .flag("-Wno-missing-braces")
+//         .flag("-Werror=pointer-arith")
+//         .flag("-Werror=implicit-function-declaration")
+//         .flag("-lglfw");
+
+//     // add optimizations for web
+//     if target.contains("emscripten") {
+//         builder
+//             .flag("-s")
+//             .flag("USE_GLFW=3")
+//             .flag("-s")
+//             .flag("ASSERTIONS=1")
+//             .flag("-s")
+//             .flag("ALLOW_MEMORY_GROWTH=1");
+//     }
+
+//     // includes
+//     builder
+//         .include("raylib/src/external/glfw/include")
+//         .include("raylib/src/external/glfw/mingw");
+//     // files
+//     builder
+//         .file("raylib/src/core.c")
+//         .file("raylib/src/shapes.c")
+//         .file("raylib/src/textures.c")
+//         .file("raylib/src/text.c")
+//         .file("raylib/src/models.c")
+//         .file("raylib/src/utils.c")
+//         .shared_flag(true)
+//         .static_flag(true)
+//         .compile("raylib");
+
+//     let has_glfw = Command::new("nm")
+//         .current_dir(&out_dir)
+//         .args(&["-g", "libraylib.a"])
+//         .output()
+//         .expect("failed to execute process");
+
+//     assert!(
+//         String::from_utf8_lossy(&has_glfw.stdout).contains("glfwGetProcAddress"),
+//         "libraylib.a doesn't contain GLFW symbols! Aborting..."
+//     );
+
+//     // bindgen
+//     // Generate and write raylib bindings
+//     bindgen::Builder::default()
+//         .header("wrapper.h")
+//         .clang_arg(format!("-I{}", out_dir.join("include").display()))
+//         .constified_enum_module("*")
+//         .generate()
+//         .expect("Failed to generate bindings")
+//         .write_to_file(out_dir.join("bindings.rs"))
+//         .expect("Failed to write bindings");
+
+//     println!("cargo:rustc-link-search=native={}", out_dir.display());
+//     println!(
+//         "cargo:rustc-link-search=native={}",
+//         out_dir.join("raylib/src").display()
+//     );
+//     println!("cargo:rustc-link-lib=static=raylib");
+//     println!("cargo:rustc-link-search=framework=/System/Library/Frameworks");
+//     println!("cargo:rustc-link-lib=framework=OpenGL");
+//     println!("cargo:rustc-link-lib=framework=Cocoa");
+//     println!("cargo:rustc-link-lib=framework=IOKit");
+//     println!("cargo:rustc-link-lib=framework=CoreFoundation");
+//     println!("cargo:rustc-link-lib=framework=CoreVideo");
+// }

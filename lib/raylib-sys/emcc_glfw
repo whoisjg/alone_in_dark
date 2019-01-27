@@ -1,0 +1,1 @@
+emcc "-s" "USE_GLFW=3" $@

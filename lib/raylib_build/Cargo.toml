@@ -1,0 +1,19 @@
+[package]
+name = "raylib_build"
+version = "0.1.0"
+authors = ["David Ayeke"]
+edition = "2018"
+
+[dependencies]
+Inflector = "0.11"
+image = "0.21"
+rect_packer = "0.2"
+raylib = { path = "../raylib" }
+
+[[bin]]
+name = "build_sprites"
+path = "src/build_sprites.rs"
+
+[[bin]]
+name = "check_sprites"
+path = "src/check_sprites.rs"

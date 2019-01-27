@@ -1,0 +1,12 @@
+MINE
+
+`rustc --edition=2018 --crate-name mybin src/bin.rs --color always --crate-type bin --emit=dep-info,link -C debuginfo=2 -C metadata=5246bd5dc7b4948e -C extra-filename=-5246bd5dc7b4948e --out-dir /Users/david/Documents/rust_stuff/webgame/lib/raylib/target/debug/deps -C incremental=/Users/david/Documents/rust_stuff/webgame/lib/raylib/target/debug/incremental -L dependency=/Users/david/Documents/rust_stuff/webgame/lib/raylib/target/debug/deps --extern raylib=/Users/david/Documents/rust_stuff/webgame/lib/raylib/target/debug/deps/libraylib-35c51e861b531c5d.rlib --extern raylib_sys=/Users/david/Documents/rust_stuff/webgame/lib/raylib/target/debug/deps/libraylib_sys-37719e9d676a990f.rlib -L native=/Users/david/Documents/rust_stuff/webgame/lib/raylib/target/debug/build/raylib-sys-7bbe5f96266b8187/out/lib -L native=/Users/david/Documents/rust_stuff/webgame/lib/raylib/target/debug/build/raylib-sys-7bbe5f96266b8187/out/lib -L framework=/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks` (exit code: 1)
+
+
+Other
+
+`rustc --edition=2018 --crate-name webgame src/main.rs --color always --crate-type bin --emit=dep-info,link -C debuginfo=2 -C metadata=84886c7b28856cd5 -C extra-filename=-84886c7b28856cd5 --out-dir /Users/david/Documents/rust_stuff/webgame/target/debug/deps -C incremental=/Users/david/Documents/rust_stuff/webgame/target/debug/incremental -L dependency=/Users/david/Documents/rust_stuff/webgame/target/debug/deps --extern raylib=/Users/david/Documents/rust_stuff/webgame/target/debug/deps/libraylib-3771ea4497c698e4.rlib -L native=/Users/david/Documents/rust_stuff/webgame/target/debug/build/raylib-sys-184709b297a400a8/out/lib -L framework=/System/Library/Frameworks`
+
+cmake /Users/david/Documents/rust_stuff/webgame/lib/raylib-sys/raylib -DMACOS_FATLIB=ON -DSTATIC=ON -DSHARED=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF -DUSE_EXTERNAL_GLFW=OFF -DINCLUDE_EVERYTHING=ON -DMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_INSTALL_PREFIX=/Users/david/Documents/rust_stuff/webgame/lib/raylib-sys/target/debug/build/raylib-sys-d6629d0551b99769/out -DCMAKE_C_FLAGS= -ffunction-sections -fdata-sections -fPIC -m64 -DCMAKE_C_COMPILER=/usr/bin/cc -DCMAKE_CXX_FLAGS= -ffunction-sections -fdata-sections -fPIC -m64 -DCMAKE_CXX_COMPILER=/usr/bin/c++ -DCMAKE_BUILD_TYPE=Debug
+
+/Users/david/Documents/rust_stuff/webgame/lib/raylib-sys/raylib
